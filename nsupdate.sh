@@ -27,7 +27,7 @@
 # from which site should we get your wan ip?
 IP_CHECK_SITE=http://checkip.dyndns.org
 
-source nsupdate.config
+source $(dirname $0)/nsupdate.config
 
 LOG=$0.log
 
