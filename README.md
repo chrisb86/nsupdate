@@ -8,6 +8,17 @@ You have to configurue it in the file nsupdate.config.
 
 ## Changelog
 
+**2014-01-2-02**
+
+- Changed default IP check site to ifconfig.me
+- Added a switch to use _drill_ instead of _nslookup_ because FreeBSD 10 switched from _bind_ to _unbound_ 
+- Renamed _$HOSTNAME_ to _$DOMAIN_ to work around potential conflicts with _$HOSTNAME_ that's set by the host itself
+
+**2014-01-06**
+
+- Config files are sourced relative to the script folder now
+
+
 **2013-07-12**
 
 - First commit

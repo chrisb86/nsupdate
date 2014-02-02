@@ -1,10 +1,16 @@
 # nsupdate.config
 
+# from which site should we get your wan ip?
+IP_CHECK_SITE="http://ifconfig.me/ip"
+
+# use drill instead of nslookup for hostname lookup
+USE_DRILL="NO"
+
 # Login credentials for the inwx admin interface
 INWX_USER="USERNAME"
 INWX_PASS="PASSWORD"
 
 # The hostname that you want to update and it's ID from the inwx interface
 # You get the ID when you edit the given nameserver entry and hover the save button.
-HOSTNAME="subdomain.example.com"
+DOMAIN="subdomain.example.com"
 INWX_DOMAIN_ID="123456789"

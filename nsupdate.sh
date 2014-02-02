@@ -24,14 +24,16 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# from which site should we get your wan ip?
-IP_CHECK_SITE=http://checkip.dyndns.org
-
 source $(dirname $0)/nsupdate.config
 
 LOG=$0.log
 
-NSLOOKUP=$(nslookup -sil $HOSTNAME - ns.inwx.de | tail -2 | head -1 | cut -d' ' -f2)
+if [[ "$USE_DRILL" == "YES" ]]; then
+   NSLOOKUP=$(drill $DOMAIN @ns.inwx.de | head -7 | tail -1 | awk '{print $5}')   
+else
+   NSLOOKUP=$(nslookup -sil $DOMAIN - ns.inwx.de | tail -2 | head -1 | cut -d' ' -f2)
+fi
+
 WAN_IP=`curl -s ${IP_CHECK_SITE}| grep -Eo '\<[[:digit:]]{1,3}(\.[[:digit:]]{1,3}){3}\>'`
 
 API_XML="<?xml version=\"1.0\"?>
@@ -73,7 +75,7 @@ API_XML="<?xml version=\"1.0\"?>
 
 if [ ! "$NSLOOKUP" == "$WAN_IP" ]; then
 	curl -silent -v -XPOST -H"Content-Type: application/xml" -d "$API_XML" https://api.domrobot.com/xmlrpc/
-	echo "$(date) - $HOSTNAME updated. Old IP: "$NSLOOKUP "New IP: "$WAN_IP >> $LOG
+	echo "$(date) - $DOMAIN updated. Old IP: "$NSLOOKUP "New IP: "$WAN_IP >> $LOG
 else
-	echo "$(date) - No update needed for $HOSTNAME. Current IP: "$NSLOOKUP >> $LOG
+	echo "$(date) - No update needed for $DOMAIN. Current IP: "$NSLOOKUP >> $LOG
 fi
