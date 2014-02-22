@@ -1,16 +1,21 @@
 # Nameserver update for inwx (nsupdate)
 
-Update a nameserver entry at inwx with the current WAN IP (DynDNS)
+Update nameserver entrys at inwx with the current WAN IP (DynDNS)
 
-nsbackup is a bash script that uses curl and the inwx API to update a given nameserver entry with the current WAN IP.
+nsbackup is a bash script that uses curl and the inwx API to update nameserver entrys at inwx with the current WAN IP. It supports IPv4 and IPv6.
 
-You have to configurue it in the file nsupdate.config.
+Place your config files in the _nsupdate.d_ folder.
 
 ## Changelog
 
-**2014-01-2-02**
+**2014-02-21**
 
-- Changed default IP check site to ifconfig.me
+- Added support for IPv6
+- Added support for config files
+
+**2014-01-02**
+
+- Changed default IP check site to ip.dblx.io
 - Added a switch to use _drill_ instead of _nslookup_ because FreeBSD 10 switched from _bind_ to _unbound_ 
 - Renamed _$HOSTNAME_ to _$DOMAIN_ to work around potential conflicts with _$HOSTNAME_ that's set by the host itself
 

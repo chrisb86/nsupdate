@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/local/bin/bash
 
 # Update a nameserver entry at inwx with the current WAN IP (DynDNS)
 
@@ -24,58 +24,82 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-source $(dirname $0)/nsupdate.config
-
 LOG=$0.log
 
-if [[ "$USE_DRILL" == "YES" ]]; then
-   NSLOOKUP=$(drill $DOMAIN @ns.inwx.de | head -7 | tail -1 | awk '{print $5}')   
-else
-   NSLOOKUP=$(nslookup -sil $DOMAIN - ns.inwx.de | tail -2 | head -1 | cut -d' ' -f2)
-fi
+# Loop through configs
+for f in $(dirname $0)/nsupdate.d/*.config
+do
+   echo "Starting nameserver update with config file $f"
+   ## Set record type to IPv4
+   TYPE=A
+   CONNECTION_TYPE=4
 
-WAN_IP=`curl -s ${IP_CHECK_SITE}| grep -Eo '\<[[:digit:]]{1,3}(\.[[:digit:]]{1,3}){3}\>'`
+   source $f
 
-API_XML="<?xml version=\"1.0\"?>
-<methodCall>
-   <methodName>nameserver.updateRecord</methodName>
-   <params>
-      <param>
-         <value>
-            <struct>
-               <member>
-                  <name>user</name>
-                  <value>
-                     <string>$INWX_USER</string>
-                  </value>
-               </member>
-               <member>
-                  <name>pass</name>
-                  <value>
-                     <string>$INWX_PASS</string>
-                  </value>
-               </member>
-               <member>
-                  <name>id</name>
-                  <value>
-                     <int>$INWX_DOMAIN_ID</int>
-                  </value>
-               </member>
-               <member>
-                  <name>content</name>
-                  <value>
-                     <string>$WAN_IP</string>
-                  </value>
-               </member>
-            </struct>
-         </value>
-      </param>
-   </params>
-</methodCall>"
+   ## Set record type to IPv6
+   if [[ "$IPV6" == "YES" ]]; then
+      TYPE=AAAA
+      CONNECTION_TYPE=6
+   fi
 
-if [ ! "$NSLOOKUP" == "$WAN_IP" ]; then
-	curl -silent -v -XPOST -H"Content-Type: application/xml" -d "$API_XML" https://api.domrobot.com/xmlrpc/
-	echo "$(date) - $DOMAIN updated. Old IP: "$NSLOOKUP "New IP: "$WAN_IP >> $LOG
-else
-	echo "$(date) - No update needed for $DOMAIN. Current IP: "$NSLOOKUP >> $LOG
-fi
+   if [[ "$USE_DRILL" == "YES" ]]; then
+      NSLOOKUP=$(drill $DOMAIN @ns.inwx.de $TYPE | head -7 | tail -1 | awk '{print $5}')   
+   else
+      NSLOOKUP=$(nslookup -sil -type=$TYPE $DOMAIN - ns.inwx.de | tail -2 | head -1 | cut -d' ' -f2)
+   fi
+
+   # WAN_IP=`curl -s -$CONNECTION_TYPE ${IP_CHECK_SITE}| grep -Eo '\<[[:digit:]]{1,3}(\.[[:digit:]]{1,3}){3}\>'`
+   WAN_IP=`curl -s -$CONNECTION_TYPE ${IP_CHECK_SITE}`
+
+   API_XML="<?xml version=\"1.0\"?>
+   <methodCall>
+      <methodName>nameserver.updateRecord</methodName>
+      <params>
+         <param>
+            <value>
+               <struct>
+                  <member>
+                     <name>user</name>
+                     <value>
+                        <string>$INWX_USER</string>
+                     </value>
+                  </member>
+                  <member>
+                     <name>pass</name>
+                     <value>
+                        <string>$INWX_PASS</string>
+                     </value>
+                  </member>
+                  <member>
+                     <name>id</name>
+                     <value>
+                        <int>$INWX_DOMAIN_ID</int>
+                     </value>
+                  </member>
+                  <member>
+                     <name>content</name>
+                     <value>
+                        <string>$WAN_IP</string>
+                     </value>
+                  </member>
+               </struct>
+            </value>
+         </param>
+      </params>
+   </methodCall>"
+
+   if [ ! "$NSLOOKUP" == "$WAN_IP" ]; then
+      curl -silent -v -XPOST -H"Content-Type: application/xml" -d "$API_XML" https://api.domrobot.com/xmlrpc/
+      echo "$(date) - $DOMAIN updated. Old IP: "$NSLOOKUP "New IP: "$WAN_IP >> $LOG
+   else
+      echo "$(date) - No update needed for $DOMAIN. Current IP: "$NSLOOKUP >> $LOG
+   fi
+
+   unset DOMAIN
+   unset IPV6
+   unset WAN_IP
+   unset NSLOOKUP
+   unset INWX_PASS
+   unset INWX_USER
+   unset INWX_DOMAIN_ID
+done
