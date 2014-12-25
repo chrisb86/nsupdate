@@ -6,6 +6,7 @@ IP_CHECK_SITE="http://ip.dblx.io"
 # use drill instead of nslookup for hostname lookup
 USE_DRILL="YES"
 IPV6="NO"
+MX="NO"
 
 # Login credentials for the inwx admin interface
 INWX_USER="USERNAME"
