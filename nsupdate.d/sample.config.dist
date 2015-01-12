@@ -10,7 +10,7 @@ MX="NO"
 
 # Login credentials for the inwx admin interface
 INWX_USER="USERNAME"
-INWX_PASS="PASSWORD"
+INWX_PASS='PASSWORD'
 
 # The hostname that you want to update and it's ID from the inwx interface
 # You get the ID when you edit the given nameserver entry and hover the save button.
