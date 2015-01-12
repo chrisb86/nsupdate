@@ -6,7 +6,20 @@ nsbackup is a bash script that uses curl and the inwx API to update nameserver e
 
 Place your config files in the _nsupdate.d_ folder.
 
+## Requirements
+
+In order to run you need to have _curl_ and _awk_ installed, as well as _drill_ or _nslookup_.
+
+At least one config file needs to exist ending with _.config_. A "sample.config.dist" is provided.
+
 ## Changelog
+
+**2015-01-12**
+
+- Added checking for needed commands
+- Added checking for existing config file
+- Added requirements to README.md
+
 
 **2014-02-21**
 
