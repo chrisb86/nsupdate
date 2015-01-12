@@ -1,7 +1,7 @@
 # nsupdate.config
 
 # from which site should we get your wan ip?
-IP_CHECK_SITE="http://ip.dblx.io"
+IP_CHECK_SITE="https://ip.dblx.io"
 
 # use drill instead of nslookup for hostname lookup
 USE_DRILL="YES"

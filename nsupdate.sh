@@ -24,6 +24,20 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+##################
+# check required #
+##################
+command -v curl >/dev/null 2>&1 || { echo >&2 "I require curl but it's not installed. Note: all needed items are listed in the README.md file."; exit 1; }
+command -v awk >/dev/null 2>&1 || { echo >&2 "I require awk but it's not installed. Note: all needed items are listed in the README.md file."; exit 1; }
+command -v drill >/dev/null 2>&1 || command -v nslookup >/dev/null 2>&1 || { echo >&2 "I need drill or nslookup installed. Note: all needed items are listed in the README.md file."; exit 1; }
+##################
+# check config   #
+##################
+if [ ! -f nsupdate.d/*.config ]; then
+    echo "There does not seem to be ready to be used config file available." ; exit 1;
+fi
+##################
+
 LOG=$0.log
 
 # Loop through configs
