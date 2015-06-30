@@ -33,8 +33,9 @@ command -v drill >/dev/null 2>&1 || command -v nslookup >/dev/null 2>&1 || { ech
 ##################
 # check config   #
 ##################
-if [ ! -f nsupdate.d/*.config ]; then
-    echo "There does not seem to be ready to be used config file available." ; exit 1;
+configfiles=$(shopt -s nullglob dotglob; echo nsupdate.d/*.config)
+if (( ! ${#configfiles} ));then
+    echo "There does not seem to be any config file available." ; exit 1;
 fi
 ##################
 
