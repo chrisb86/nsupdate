@@ -14,10 +14,15 @@ At least one config file needs to exist ending with _.config_. A "sample.config.
 
 ## Changelog
 
+**2015-06-30**
+
+- Fixed the check for config files. Can now handle more than one file
+- Changed warning for missing config files
+
 **2015-01-12**
 
-- Added checking for needed commands
-- Added checking for existing config file
+- Added checks for needed commands
+- Added checks for existing config file
 - Added requirements to README.md
 
 
