@@ -2,7 +2,7 @@
 
 Update nameserver entrys at inwx with the current WAN IP (DynDNS)
 
-nsbackup is a bash script that uses curl and the inwx API to update nameserver entrys at inwx with the current WAN IP. It supports IPv4 and IPv6.
+nsbackup is a shell script that uses curl and the inwx API to update nameserver entrys at inwx with the current WAN IP. It supports IPv4 and IPv6.
 
 Place your config files in the _nsupdate.d_ folder.
 
@@ -13,6 +13,12 @@ In order to run you need to have _curl_ and _awk_ installed, as well as _drill_ 
 At least one config file needs to exist ending with _.config_. A "sample.config.dist" is provided.
 
 ## Changelog
+
+**2015-07-22**
+
+- Changed the way how the existence of config files is checked
+- Updated the sample config file to reflect new options from the last updates
+- The script is reported to work in csh and sh too
 
 **2015-06-30**
 
