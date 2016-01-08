@@ -1,8 +1,8 @@
-# Nameserver update for inwx (nsupdate)
+# Nameserver update for INWX (nsupdate)
 
-Update nameserver entrys at inwx with the current WAN IP (DynDNS)
+Update nameserver entries at inwx with the current WAN IP (DynDNS)
 
-nsbackup is a shell script that uses curl and the inwx API to update nameserver entrys at inwx with the current WAN IP. It supports IPv4 and IPv6.
+nsupdate is a shell script that uses curl and the inwx API to update nameserver entries at INWX with the current WAN IP. It supports IPv4 and IPv6.
 
 Place your config files in the _nsupdate.d_ folder.
 
