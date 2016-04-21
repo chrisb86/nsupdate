@@ -59,22 +59,22 @@ if ls $(dirname $0)/nsupdate.d/*.config &> /dev/null; then
 
       if [[ "$USE_DRILL" == "YES" ]]; then
          if [[ "$TYPE" == "MX" ]]; then
-         echo looking up MX records with drill currently not supported!
-         exit 1;
-        else
-          NSLOOKUP=$(drill $DOMAIN @ns.inwx.de $TYPE | head -7 | tail -1 | awk '{print $5}')   
-        fi
+            echo looking up MX records with drill currently not supported!
+            exit 1
+         else
+            NSLOOKUP=$(drill $DOMAIN @ns.inwx.de $TYPE | head -7 | tail -1 | awk '{print $5}')
+         fi
       else
          if [[ "$TYPE" == "MX" ]]; then
-         PART_NSLOOKUP=$(nslookup -sil -type=$TYPE $DOMAIN - ns.inwx.de | tail -2 | head -1 | cut -d' ' -f5)
-         NSLOOKUP=${PART_NSLOOKUP%"."}
+            PART_NSLOOKUP=$(nslookup -sil -type=$TYPE $DOMAIN - ns.inwx.de | tail -2 | head -1 | cut -d' ' -f5)
+            NSLOOKUP=${PART_NSLOOKUP%"."}
          else
-         NSLOOKUP=$(nslookup -sil -type=$TYPE $DOMAIN - ns.inwx.de | tail -2 | head -1 | cut -d' ' -f2)
-        fi
+            NSLOOKUP=$(nslookup -sil -type=$TYPE $DOMAIN - ns.inwx.de | tail -2 | head -1 | cut -d' ' -f2)
+         fi
       fi
 
       # WAN_IP=`curl -s -$CONNECTION_TYPE ${IP_CHECK_SITE}| grep -Eo '\<[[:digit:]]{1,3}(\.[[:digit:]]{1,3}){3}\>'`
-      WAN_IP=`curl -s -$CONNECTION_TYPE ${IP_CHECK_SITE}`
+      WAN_IP=$(curl -s -$CONNECTION_TYPE ${IP_CHECK_SITE})
 
 
       API_XML="<?xml version=\"1.0\"?>
@@ -131,5 +131,6 @@ if ls $(dirname $0)/nsupdate.d/*.config &> /dev/null; then
       unset INWX_DOMAIN_ID
    done
 else
-   echo "There does not seem to be any config file available in $(dirname $0)/nsupdate.d/." ; exit 1;
+   echo "There does not seem to be any config file available in $(dirname $0)/nsupdate.d/."
+   exit 1
 fi
