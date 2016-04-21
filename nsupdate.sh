@@ -115,10 +115,14 @@ if ls $(dirname $0)/nsupdate.d/*.config &> /dev/null; then
       </methodCall>"
 
       if [[ "$NSLOOKUP" != "$WAN_IP" ]]; then
-         curl -silent -v -XPOST -H"Content-Type: application/xml" -d "$API_XML" https://api.domrobot.com/xmlrpc/
-         echo "$(date) - $DOMAIN updated. Old IP: "$NSLOOKUP "New IP: "$WAN_IP >> $LOG
-      elif [ "$SILENT" == "NO" ]; then
-         echo "$(date) - No update needed for $DOMAIN. Current IP: "$NSLOOKUP >> $LOG
+         curl -s -XPOST -H "Content-Type: application/xml" -d "$API_XML" https://api.domrobot.com/xmlrpc/
+         if [[ "$SILENT" == "NO" ]]; then
+            echo "$(date) - $DOMAIN updated. Old IP: "$NSLOOKUP "New IP: "$WAN_IP >> $LOG
+         fi
+      else
+         if [[ "$SILENT" == "NO" ]]; then
+            echo "$(date) - No update needed for $DOMAIN. Current IP: "$NSLOOKUP >> $LOG
+         fi
       fi
 
       unset DOMAIN
@@ -129,6 +133,7 @@ if ls $(dirname $0)/nsupdate.d/*.config &> /dev/null; then
       unset INWX_PASS
       unset INWX_USER
       unset INWX_DOMAIN_ID
+      unset API_XML
    done
 else
    echo "There does not seem to be any config file available in $(dirname $0)/nsupdate.d/."
