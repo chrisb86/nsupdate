@@ -25,16 +25,15 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 # check required tools
-command -v curl >/dev/null 2>&1 || { echo >&2 "I require curl but it's not installed. Note: all needed items are listed in the README.md file."; exit 1; }
-command -v awk >/dev/null 2>&1 || { echo >&2 "I require awk but it's not installed. Note: all needed items are listed in the README.md file."; exit 1; }
-command -v drill >/dev/null 2>&1 || command -v nslookup >/dev/null 2>&1 || { echo >&2 "I need drill or nslookup installed. Note: all needed items are listed in the README.md file."; exit 1; }
+command -v curl &> /dev/null || { echo >&2 "I require curl but it's not installed. Note: all needed items are listed in the README.md file."; exit 1; }
+command -v awk &> /dev/null || { echo >&2 "I require awk but it's not installed. Note: all needed items are listed in the README.md file."; exit 1; }
+command -v drill &> /dev/null || command -v nslookup &> /dev/null || { echo >&2 "I need drill or nslookup installed. Note: all needed items are listed in the README.md file."; exit 1; }
 
 LOG=$0.log
 SILENT=NO
 
 # Check if there are any usable config files
-if ls $(dirname $0)/nsupdate.d/*.config 1> /dev/null 2>&1; then
-   
+if ls $(dirname $0)/nsupdate.d/*.config &> /dev/null; then
    # Loop through configs
    for f in $(dirname $0)/nsupdate.d/*.config
    do
