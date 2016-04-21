@@ -37,7 +37,7 @@ if ls $(dirname $0)/nsupdate.d/*.config &> /dev/null; then
    # Loop through configs
    for f in $(dirname $0)/nsupdate.d/*.config
    do
-      if [ "$SILENT" == "NO" ]; then
+      if [[ "$SILENT" == "NO" ]]; then
          echo "Starting nameserver update with config file $f"
       fi
       ## Set record type to IPv4
@@ -65,7 +65,7 @@ if ls $(dirname $0)/nsupdate.d/*.config &> /dev/null; then
           NSLOOKUP=$(drill $DOMAIN @ns.inwx.de $TYPE | head -7 | tail -1 | awk '{print $5}')   
         fi
       else
-           if [[ "$TYPE" == "MX" ]]; then
+         if [[ "$TYPE" == "MX" ]]; then
          PART_NSLOOKUP=$(nslookup -sil -type=$TYPE $DOMAIN - ns.inwx.de | tail -2 | head -1 | cut -d' ' -f5)
          NSLOOKUP=${PART_NSLOOKUP%"."}
          else
@@ -113,8 +113,8 @@ if ls $(dirname $0)/nsupdate.d/*.config &> /dev/null; then
             </param>
          </params>
       </methodCall>"
-      
-      if [ ! "$NSLOOKUP" == "$WAN_IP" ]; then
+
+      if [[ "$NSLOOKUP" != "$WAN_IP" ]]; then
          curl -silent -v -XPOST -H"Content-Type: application/xml" -d "$API_XML" https://api.domrobot.com/xmlrpc/
          echo "$(date) - $DOMAIN updated. Old IP: "$NSLOOKUP "New IP: "$WAN_IP >> $LOG
       elif [ "$SILENT" == "NO" ]; then
