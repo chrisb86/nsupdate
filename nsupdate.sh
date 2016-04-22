@@ -25,20 +25,19 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 # check required tools
-command -v curl >/dev/null 2>&1 || { echo >&2 "I require curl but it's not installed. Note: all needed items are listed in the README.md file."; exit 1; }
-command -v awk >/dev/null 2>&1 || { echo >&2 "I require awk but it's not installed. Note: all needed items are listed in the README.md file."; exit 1; }
-command -v drill >/dev/null 2>&1 || command -v nslookup >/dev/null 2>&1 || { echo >&2 "I need drill or nslookup installed. Note: all needed items are listed in the README.md file."; exit 1; }
+command -v curl &> /dev/null || { echo >&2 "I require curl but it's not installed. Note: all needed items are listed in the README.md file."; exit 1; }
+command -v awk &> /dev/null || { echo >&2 "I require awk but it's not installed. Note: all needed items are listed in the README.md file."; exit 1; }
+command -v drill &> /dev/null || command -v nslookup &> /dev/null || { echo >&2 "I need drill or nslookup installed. Note: all needed items are listed in the README.md file."; exit 1; }
 
 LOG=$0.log
 SILENT=NO
 
 # Check if there are any usable config files
-if ls $(dirname $0)/nsupdate.d/*.config 1> /dev/null 2>&1; then
-   
+if ls $(dirname $0)/nsupdate.d/*.config &> /dev/null; then
    # Loop through configs
    for f in $(dirname $0)/nsupdate.d/*.config
    do
-      if [ "$SILENT" == "NO" ]; then
+      if [[ "$SILENT" == "NO" ]]; then
          echo "Starting nameserver update with config file $f"
       fi
       ## Set record type to IPv4
@@ -60,22 +59,22 @@ if ls $(dirname $0)/nsupdate.d/*.config 1> /dev/null 2>&1; then
 
       if [[ "$USE_DRILL" == "YES" ]]; then
          if [[ "$TYPE" == "MX" ]]; then
-         echo looking up MX records with drill currently not supported!
-         exit 1;
-        else
-          NSLOOKUP=$(drill $DOMAIN @ns.inwx.de $TYPE | head -7 | tail -1 | awk '{print $5}')   
-        fi
-      else
-           if [[ "$TYPE" == "MX" ]]; then
-         PART_NSLOOKUP=$(nslookup -sil -type=$TYPE $DOMAIN - ns.inwx.de | tail -2 | head -1 | cut -d' ' -f5)
-         NSLOOKUP=${PART_NSLOOKUP%"."}
+            echo looking up MX records with drill currently not supported!
+            exit 1
          else
-         NSLOOKUP=$(nslookup -sil -type=$TYPE $DOMAIN - ns.inwx.de | tail -2 | head -1 | cut -d' ' -f2)
-        fi
+            NSLOOKUP=$(drill $DOMAIN @ns.inwx.de $TYPE | head -7 | tail -1 | awk '{print $5}')
+         fi
+      else
+         if [[ "$TYPE" == "MX" ]]; then
+            PART_NSLOOKUP=$(nslookup -sil -type=$TYPE $DOMAIN - ns.inwx.de | tail -2 | head -1 | cut -d' ' -f5)
+            NSLOOKUP=${PART_NSLOOKUP%"."}
+         else
+            NSLOOKUP=$(nslookup -sil -type=$TYPE $DOMAIN - ns.inwx.de | tail -2 | head -1 | cut -d' ' -f2)
+         fi
       fi
 
       # WAN_IP=`curl -s -$CONNECTION_TYPE ${IP_CHECK_SITE}| grep -Eo '\<[[:digit:]]{1,3}(\.[[:digit:]]{1,3}){3}\>'`
-      WAN_IP=`curl -s -$CONNECTION_TYPE ${IP_CHECK_SITE}`
+      WAN_IP=$(curl -s -$CONNECTION_TYPE ${IP_CHECK_SITE})
 
 
       API_XML="<?xml version=\"1.0\"?>
@@ -114,12 +113,16 @@ if ls $(dirname $0)/nsupdate.d/*.config 1> /dev/null 2>&1; then
             </param>
          </params>
       </methodCall>"
-      
-      if [ ! "$NSLOOKUP" == "$WAN_IP" ]; then
-         curl -silent -v -XPOST -H"Content-Type: application/xml" -d "$API_XML" https://api.domrobot.com/xmlrpc/
-         echo "$(date) - $DOMAIN updated. Old IP: "$NSLOOKUP "New IP: "$WAN_IP >> $LOG
-      elif [ "$SILENT" == "NO" ]; then
-         echo "$(date) - No update needed for $DOMAIN. Current IP: "$NSLOOKUP >> $LOG
+
+      if [[ "$NSLOOKUP" != "$WAN_IP" ]]; then
+         curl -s -XPOST -H "Content-Type: application/xml" -d "$API_XML" https://api.domrobot.com/xmlrpc/
+         if [[ "$SILENT" == "NO" ]]; then
+            echo "$(date) - $DOMAIN updated. Old IP: "$NSLOOKUP "New IP: "$WAN_IP >> $LOG
+         fi
+      else
+         if [[ "$SILENT" == "NO" ]]; then
+            echo "$(date) - No update needed for $DOMAIN. Current IP: "$NSLOOKUP >> $LOG
+         fi
       fi
 
       unset DOMAIN
@@ -130,7 +133,9 @@ if ls $(dirname $0)/nsupdate.d/*.config 1> /dev/null 2>&1; then
       unset INWX_PASS
       unset INWX_USER
       unset INWX_DOMAIN_ID
+      unset API_XML
    done
 else
-   echo "There does not seem to be any config file available in $(dirname $0)/nsupdate.d/." ; exit 1;
+   echo "There does not seem to be any config file available in $(dirname $0)/nsupdate.d/."
+   exit 1
 fi
