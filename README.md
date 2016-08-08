@@ -1,16 +1,16 @@
 # Nameserver update for INWX (nsupdate)
 
-Update nameserver entries at inwx with the current WAN IP (DynDNS)
-
-nsupdate is a shell script that uses curl and the inwx API to update nameserver entries at INWX with the current WAN IP. It supports IPv4 and IPv6.
-
-Place your config files in the _nsupdate.d_ folder.
+This shell script implements [dynamic DNS](https://en.wikipedia.org/wiki/Dynamic_DNS) using the [inwx](https://www.inwx.de/) API, i.e., it updates nameserver entries with your current WAN IPv4 and IPv6 addresses.
 
 ## Requirements
 
 In order to run you need to have _curl_ and _awk_ installed, as well as _drill_ or _nslookup_.
 
-At least one config file needs to exist ending with _.config_. A "sample.config.dist" is provided.
+## Installation
+
+Simply download the `master.zip` and extract it, e.g., using `wget` and `7z x master.zip`.
+
+Place your config files in the `nsupdate.d` folder. A `sample.config.dist` is provided. At least one config file needs to exist, ending with `.config. 
 
 ## Changelog
 
@@ -31,7 +31,6 @@ At least one config file needs to exist ending with _.config_. A "sample.config.
 - Added checks for existing config file
 - Added requirements to README.md
 
-
 **2014-02-21**
 
 - Added support for IPv6
@@ -46,7 +45,6 @@ At least one config file needs to exist ending with _.config_. A "sample.config.
 **2014-01-06**
 
 - Config files are sourced relative to the script folder now
-
 
 **2013-07-12**
 

@@ -1,25 +1,29 @@
 # nsupdate.config
 
-# from which site should we get your wan ip?
+# Log file name.
+LOG="$0.log"
+
+# From which site should we get your WAN IP?
 IP_CHECK_SITE="https://ip.dblx.io"
 
-# use drill instead of nslookup for hostname lookup
-USE_DRILL="YES"
+# Use drill instead of nslookup for hostname lookup.
+USE_DRILL="NO"
 
-# Use IPv6 connection
+# Use IPv6 connection.
 IPV6="NO"
 
-# Update an MX record
+# Update an MX record.
 MX="NO"
 
-# Suppress all messages
-SILENT=NO
+# Suppress all messages.
+SILENT="NO"
 
 # Login credentials for the inwx admin interface
 INWX_USER="USERNAME"
-INWX_PASS='PASSWORD'
+INWX_PASS="PASSWORD"
 
-# The hostname that you want to update and it's ID from the inwx interface
-# You get the ID when you edit the given nameserver entry and hover the save button.
+# The hostname that you want to update and it's ID from the inwx interface.
+# Note: You can get the domain ID while editing the given nameserver entry by
+#       inspecting the target URL of the save button.
 DOMAIN="DOMAIN"
 INWX_DOMAIN_ID="123456789"
