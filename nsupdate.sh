@@ -37,14 +37,15 @@ if ls $(dirname $0)/nsupdate.d/*.config &> /dev/null; then
    # Loop through configs
    for f in $(dirname $0)/nsupdate.d/*.config
    do
+      source $f
+
       if [[ "$SILENT" == "NO" ]]; then
          echo "Starting nameserver update with config file $f ($LOG)"
       fi
+
       ## Set record type to IPv4
       TYPE=A
       CONNECTION_TYPE=4
-
-      source $f
 
       ## Set record type to MX
       if [[ "$MX" == "YES" ]]; then
