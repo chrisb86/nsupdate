@@ -4,7 +4,7 @@
 LOG="$0.log"
 
 # From which site should we get your WAN IP?
-IP_CHECK_SITE="https://ip.dblx.io"
+IP_CHECK_SITE="https://api.ipify.org/"
 
 # Use drill instead of nslookup for hostname lookup.
 USE_DRILL="NO"
