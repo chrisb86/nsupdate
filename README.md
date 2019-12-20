@@ -10,9 +10,19 @@ In order to run you need to have _curl_ and _awk_ installed, as well as _drill_ 
 
 Simply download the `master.zip` and extract it, e.g., using `wget` and `7z x master.zip`.
 
-Place your config files in the `nsupdate.d` folder. A `sample.config.dist` is provided. At least one config file needs to exist, ending with `.config. 
+Place your config files in the `nsupdate.d` folder. A `dist.config.sample` is provided. At least one config file needs to exist, ending with `.config.  
+All .config files will be processed by looping them.  
+Simply copy the provided dist.config.sample and adjust your config to your needs.
+For home.example.com you may create:  
+home.example.com-ipv4.config and/or  
+home.example.com-ipv6.config  
 
 ## Changelog
+
+**2019-12-20**
+
+- Fixing API-XML syntax
+- Added some more documentation
 
 **2015-07-22**
 
