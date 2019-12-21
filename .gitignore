@@ -1,2 +1,3 @@
 *.config
+!dist.config.sample
 nsupdate.sh.log

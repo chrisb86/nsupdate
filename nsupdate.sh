@@ -92,6 +92,12 @@ if ls $(dirname $0)/nsupdate.d/*.config &> /dev/null; then
                         </value>
                      </member>
                      <member>
+                        <name>lang</name>
+                        <value>
+                           <string>en</string>
+                        </value>
+                     </member>
+                     <member>
                         <name>pass</name>
                         <value>
                            <string>$INWX_PASS</string>
@@ -108,6 +114,12 @@ if ls $(dirname $0)/nsupdate.d/*.config &> /dev/null; then
                         <value>
                            <string>$WAN_IP</string>
                         </value>
+                     </member>
+                     <member>
+                        <name>ttl</name>
+                        <value>
+                           <int>300</int>
+                           </value>
                      </member>
                   </struct>
                </value>

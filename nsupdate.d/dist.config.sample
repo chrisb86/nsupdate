@@ -1,9 +1,13 @@
 # nsupdate.config
+# The nsupdate.sh is processing all .config files by looping.
+# If you want to update an IPv4 and an IPv6 record you need two config files.
 
 # Log file name.
 LOG="$0.log"
 
 # From which site should we get your WAN IP?
+# Note that for IPv4 or IPv6 the IP_CHECK_SITE should work
+# e.g. for IPv4 use api.ipify.org and for IPv6 use api6.ipify.org
 IP_CHECK_SITE="https://api.ipify.org/"
 
 # Use drill instead of nslookup for hostname lookup.
@@ -23,7 +27,7 @@ INWX_USER="USERNAME"
 INWX_PASS="PASSWORD"
 
 # The hostname that you want to update and it's ID from the inwx interface.
-# Note: You can get the domain ID while editing the given nameserver entry by
+# Note: You can get the specific domain record ID while editing the given nameserver entry by
 #       inspecting the target URL of the save button.
 DOMAIN="DOMAIN"
 INWX_DOMAIN_ID="123456789"
