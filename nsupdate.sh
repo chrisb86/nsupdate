@@ -118,7 +118,7 @@ if ls $(dirname $0)/nsupdate.d/*.config &> /dev/null; then
                      <member>
                         <name>ttl</name>
                         <value>
-                           <int>300</int>
+                           <int>$TTL</int>
                            </value>
                      </member>
                   </struct>
@@ -142,6 +142,7 @@ if ls $(dirname $0)/nsupdate.d/*.config &> /dev/null; then
       unset IPV6
       unset MX
       unset WAN_IP
+      unset TTL
       unset NSLOOKUP
       unset INWX_PASS
       unset INWX_USER
