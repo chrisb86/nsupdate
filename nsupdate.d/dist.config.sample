@@ -22,6 +22,9 @@ MX="NO"
 # Suppress all messages.
 SILENT="NO"
 
+# Time to Live
+TTL=300
+
 # Login credentials for the inwx admin interface
 INWX_USER="USERNAME"
 INWX_PASS="PASSWORD"
