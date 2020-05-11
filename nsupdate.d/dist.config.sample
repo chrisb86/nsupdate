@@ -19,10 +19,12 @@ IPV6="NO"
 # Update an MX record.
 MX="NO"
 
-# Suppress all messages.
+# Suppress all messages and deactivates logging.
 SILENT="NO"
 
-# Time to Live
+# TTL: Time to Live
+# default TTL setting by inwx is 3600 (1 hour)
+# minimum TTL allowed by inwx is 300 (5 minutes) for regular nameserver record updates
 TTL=300
 
 # Login credentials for the inwx admin interface
