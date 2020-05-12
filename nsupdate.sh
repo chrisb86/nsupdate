@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Update a nameserver entry at inwx with the current WAN IP (DynDNS)
 
