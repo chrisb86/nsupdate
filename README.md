@@ -17,23 +17,53 @@ In order to run the script you need to have installed the following command line
 - _awk_
 - _nslookup_ or _drill_
 
+recommendation
+
+- _xmllint_ (libxml2-utils)  
+If _xmllint_ is not on your system you have to set the domain record id in your config files.
+
+Note: 2-Factor-Authentification method (2FA) is not implemented.
+
 ## Installation
 
 Simply clone this project or download the `master.zip` and extract it, e.g., using `wget` and `7z x master.zip`.
 
-Place your config files in the `nsupdate.d` folder. A `dist.config.sample` is provided. At least one config file needs to exist, ending with `.config.  
+Place your config files in the `nsupdate.d` folder. A `dist.config.sample` file with all possible options is provided. At least one config file needs to exist, ending with `.config.  
 All .config files (one for each dns-record) will be processed by looping them.  
-Simply copy the provided dist.config.sample and adjust your config to your needs.
-For home.example.com you may create:  
-home.example.com-ipv4.config and/or  
-home.example.com-ipv6.config  
 
+For home.example.com you may create:  
+A-Record Update configuration e.g.  
+`myV4.config`  
+```
+INWX_USER="USERNAME"
+INWX_PASS="PASSWORD"
+MAIN_DOMAIN="example.de"
+DOMAIN="home.example.de"
+TYPE="A"
+IP_CHECK_SITE="https://api.ipify.org"
+```
+AAAA-Record Update configuration e.g.  
+`myV6.config`  
+```
+INWX_USER="USERNAME"
+INWX_PASS="PASSWORD"
+MAIN_DOMAIN="example.de"
+DOMAIN="home.example.de"
+TYPE="AAAA"
+IP_CHECK_SITE="https://api6.ipify.org"
+```
 
 ## Run nsupdate by cron
 With `crontab -e` you can add the following line for running the script every 5 minutes:  
 `*/5 * * * * bash /home/$USER/nsupdate/nsupdate.sh`  
 
 ## Changelog
+
+**2020-07-03**
+
+ - Rearranged config.sample
+ - Updated Readme
+ - Getting the Domain-Record-ID via XML-RPC API
 
 **2020-05-11**
 
