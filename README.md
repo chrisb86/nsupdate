@@ -19,7 +19,10 @@ In order to run the script you need to have installed the following command line
 
 recommendation
 
-- _xmllint_ (libxml2-utils)  
+- _xmllint_  
+Look for _libxml2-utils_ (Debian, Ubuntu) or  
+_libxml2_ (FreeBSD, CentOS),  
+_xmlstarlet_ is also available on many systems and it gets _xmllint_.  
 If _xmllint_ is not on your system you have to set the domain record id in your config files.
 
 Note: 2-Factor-Authentification method (2FA) is not implemented.
@@ -28,7 +31,7 @@ Note: 2-Factor-Authentification method (2FA) is not implemented.
 
 Simply clone this project or download the `master.zip` and extract it, e.g., using `wget` and `7z x master.zip`.
 
-Place your config files in the `nsupdate.d` folder. A `dist.config.sample` file with all possible options is provided. At least one config file needs to exist, ending with `.config.  
+Place your config files in the `nsupdate.d` folder. A `dist.config.sample` file with all possible options is provided. At least one config file needs to exist, ending with `.config`.  
 All .config files (one for each dns-record) will be processed by looping them.  
 
 For home.example.com you may create:  
