@@ -94,10 +94,10 @@ if ls $(dirname $0)/nsupdate.d/*.config &> /dev/null; then
       fi
 
       # WAN_IP=`curl -s -$CONNECTION_TYPE ${IP_CHECK_SITE}| grep -Eo '\<[[:digit:]]{1,3}(\.[[:digit:]]{1,3}){3}\>'`
-      if [[ -n "$IPCOMMAND" ]]; then
-        WAN_IP=$($IPCOMMAND)
-      else
+      if [[ -z ${IPCOMMAND} ]]; then
         WAN_IP=$(curl -s -$CONNECTION_TYPE ${IP_CHECK_SITE})
+      else
+        WAN_IP=$($IPCOMMAND)
       fi
 
       # This is relevant for getting the specific domain record id.
