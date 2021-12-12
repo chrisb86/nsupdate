@@ -44,6 +44,9 @@ LOG="$0.log"
 #       inspecting the target URL of the save button.
 #INWX_DOMAIN_ID="123456789"
 
+# Provide a command to get the Ip instead of using Curl
+#IPCOMMAND=""
+
 # Use IPv6 connection.
 # deprecated option for backward compatibility, use TYPE instead
 #IPV6="NO"
