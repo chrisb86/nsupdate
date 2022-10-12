@@ -1,0 +1,74 @@
+
+# nsupdate.conf
+#
+# This file holds the global configuration for nsupdate.
+# It will be found in the directory of the nsupdate script or /usr/local/etc/nsupdate.
+# All options have sensible defaults and can be left undefined, except of your INWX credentials.
+
+## Backwards compatibilty
+## If you've used nsupdate before, uncomment the following lines to use your old configurations
+#NSUPDATE_CONFD_DIR="./nsupdate.d"
+#NSUPDATE_LOG_DIR="."
+#NSUPDATE_LOG_FILE="nsupdate.sh.log"
+#NSUPDATE_CONF_EXTENSION=".config"
+#NSUPDATE_TMP_DIR="."
+
+# NSUPDATE_INWX_USER
+# INWX API user that's globally used; can be overwritten in DNS record configuration
+#NSUPDATE_INWX_USER="YOUR_INWX_USER_NAME" 
+
+# NSUPDATE_INWX_PASSWORD
+# INWX API password that's globally used; can be overwritten in DNS record configuration
+#NSUPDATE_INWX_PASSWORD="YOUR_INWX_USER_PASSWORD"
+
+# NSUPDATE_RECORD_TYPE
+# DNS record type that's used when nothing is defined; A or AAAA; default: A
+#NSUPDATE_RECORD_TYPE="A"
+
+# NSUPDATE_RECORD_TTL
+# DNS record TTL that's used when nothing is defined; minimum: 300; default: 300
+#NSUPDATE_RECORD_TTL="300"
+
+# VERBOSE
+# Print more output; true or false; default: false
+#VERBOSE="false"
+
+# DEBUG
+# Print debugging messages; true or false; default: false
+#DEBUG="false"
+
+# BASEDIR
+# Base path for configuration files on the system; default: /usr/local/etc
+#BASEDIR="/usr/local/etc"
+
+# NSUPDATE_CONF_DIR
+# Directory path of the nsupdate configuration files in base path for configuration files on the system; default: nsupdate
+#NSUPDATE_CONF_DIR="$BASEDIR/nsupdate"
+
+# NSUPDATE_CONFD_DIR
+# Directory name for the DNS config files; dfault: $NSUPDATE_CONF_DIR/conf.d
+#NSUPDATE_CONFD_DIR="$NSUPDATE_CONF_DIR/conf.d"
+
+# LOG_DATE_FORMAT
+# Date format for log files; default: %Y-%m-%d %H:%M:%S
+#LOG_DATE_FORMAT="%Y-%m-%d %H:%M:%S"
+
+# NSUPDATE_LOG_DIR
+# Directory path for the log file; default: /var/log
+#NSUPDATE_LOG_DIR="/var/log/nsupdate"
+
+# NSUPDATE_LOG_FILE
+# Name of the log file; default: nsupdate.log
+#NSUPDATE_LOG_FILE="nsupdate.log"
+
+# NSUPDATE_TMP_DIR
+# Directory path for temporary files; default: /tmp
+#NSUPDATE_TMP_DIR="/tmp"
+
+# NSUPDATE_CONF_EXTENSION
+# File name extension for configuration files; default: .conf
+#NSUPDATE_CONF_EXTENSION=".conf"
+
+# NSUPDATE_IP_CHECK_SITE
+# Website to retrieve the wan IP; should be accissible by IPv4 and IPv6; default: https://api64.ipify.org
+#NSUPDATE_IP_CHECK_SITE="https://api64.ipify.org"
