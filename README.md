@@ -53,7 +53,6 @@ With `crontab -e` you can add the following line for running the script every 5 
 - The code is now structured in functions which makes it more maintainable and modular.
 - Backwards compatibility should be given.
 - Avoid using awk and get rid of dependency
-- NOTE: The IPCOMMAND directive is not implemented yet
 
 **2021-12-11**
 

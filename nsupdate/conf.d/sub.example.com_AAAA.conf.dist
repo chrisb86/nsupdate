@@ -8,7 +8,7 @@
 MAIN_DOMAIN="example.com"
 DOMAIN="sub.example.com"
 
-# The next options must only be set if they differ from the global config in nsupdate.conf
+# The following options must only be set if they differ from the global config in nsupdate.conf
 
 # Login credentials for the INWX API
 # These can be left undefined if you specified them globally in the  nsupdate.conf
@@ -24,3 +24,7 @@ RECORD_TYPE="AAAA"
 # minimum TTL allowed by INWX is 300 (5 minutes) for regular nameserver record updates
 # If unspecified, nsupdate uses a TTL of 300
 #RECORD_TTL="300"
+
+# Use a shell command to retrieve the WAN IP (eg. by SSHing to the router and get the IP from the WAN interface)
+# Otherwise the IP retrieved by website will be used
+#WAN_IP_COMMAND=$(ssh user@10.0.3.1 ifconfig pppoe1 | grep 'inet ' | cut -d' ' -f2)

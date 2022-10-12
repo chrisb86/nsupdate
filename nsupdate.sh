@@ -105,11 +105,18 @@ get_domain_info () {
     ## File name for tempory file to store the XML from API
     tmp_file="${domain}_${record_type}_$(date +%s).xml"
 
-    ## Get connection type by record type
-    if [ "${record_type}" = "AAAA" ]; then
-      wan_ip="${wan_ip6}"
+    ## Check if WAN_IP_COMMAND is set and use it for retrieving the IP
+    if [ -z $WAN_IP_COMMAND ]; then
+      WAN_IP_COMMAND="${IPCOMMAND:-${WAN_IP_COMMAND}}" ## for backwards compatibility
+      wan_ip="${WAN_IP_COMMAND}"
     else
-      wan_ip="${wan_ip4}"
+      ## Otherwise use IP retrieved from web site
+      ## Get connection type by record type
+      if [ "${record_type}" = "AAAA" ]; then
+        wan_ip="${wan_ip6}"
+      else
+        wan_ip="${wan_ip4}"
+      fi
     fi
 
     chat 3 "Found xmllint. Using curl for retrieving data from INWX API."
