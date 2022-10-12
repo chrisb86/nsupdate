@@ -11,50 +11,32 @@ There exists the `dyndns.updateRecord` method in the DomRobot API. Therefore you
 
 ## Requirements
 
-In order to run the script you need to have installed the following command line tools:
+_nsupdate_ is fully POSIX compliant and should work in every shell.
 
-- _curl_
-- _awk_
-- _nslookup_ or _drill_
+Nevertheless it has some dependencies to use it:
+- _xmllint_ (Look for _libxml2-utils_ (Debian, Ubuntu) or _libxml2_ (FreeBSD, CentOS)). It's used for Getting the ID and the current IP from the INWX API. This is the recommended way.
 
-recommendation
+- If you dont't have installed _xmllint_, you need either _nslookup_ or _drill_ to query the nameserver for the current IP. In this case you must define the specific INWX IDs in the config files for your INWX records.
 
-- _xmllint_  
-Look for _libxml2-utils_ (Debian, Ubuntu) or  
-_libxml2_ (FreeBSD, CentOS),  
-_xmlstarlet_ is also available on many systems and it gets _xmllint_.  
-If _xmllint_ is not on your system you have to set the domain record id in your config files.
+- A hard requirement is _curl_ as it's used to make the API calls.
 
-Note: 2-Factor-Authentification method (2FA) is not implemented.
+Note: 2-Factor-Authentification method (2FA) is not supported when using the INWX API.
 
 ## Installation
 
 Simply clone this project or download the `master.zip` and extract it, e.g., using `wget` and `7z x master.zip`.
 
-Place your config files in the `nsupdate.d` folder. A `dist.config.sample` file with all possible options is provided. At least one config file needs to exist, ending with `.config`.  
-All .config files (one for each dns-record) will be processed by looping them.  
+Move the included _nsupdate directory_ to _/usr/local/etc_ (see the config section if you want to use another path) and nsupdate.sh anywhere in your $PATH (e.g. /_usr/local/bin_ or _~/bin_).
 
-For home.example.com you may create:  
-A-Record Update configuration e.g.  
-`myV4.config`  
-```
-INWX_USER="USERNAME"
-INWX_PASS="PASSWORD"
-MAIN_DOMAIN="example.de"
-DOMAIN="home.example.de"
-TYPE="A"
-IP_CHECK_SITE="https://api.ipify.org"
-```
-AAAA-Record Update configuration e.g.  
-`myV6.config`  
-```
-INWX_USER="USERNAME"
-INWX_PASS="PASSWORD"
-MAIN_DOMAIN="example.de"
-DOMAIN="home.example.de"
-TYPE="AAAA"
-IP_CHECK_SITE="https://api6.ipify.org"
-```
+[TODO] TMP DIR
+[TODO] LOG DIR
+
+## Configuration
+
+[TODO] nsupdate.conf
+[TODO] DNS record conf
+[TODO] Backwards compatibility
+
 
 ## Run nsupdate by cron
 With `crontab -e` you can add the following line for running the script every 5 minutes:  
@@ -71,6 +53,10 @@ With `crontab -e` you can add the following line for running the script every 5 
 - The code is now structured in functions which makes it more maintainable and modular.
 - Backwards compatibility should be given.
 - Avoid using awk and get rid of dependency
+
+**2021-12-11**
+
+- Added the possibility to retrieve the WAN IP by a shell command (e.g. SSHing into your router and get the IP of the WAN interface)
 
 **2020-07-03**
 
