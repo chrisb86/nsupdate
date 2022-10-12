@@ -80,6 +80,9 @@ init () {
   tmp_dir="${NSUPDATE_TMP_DIR:-/tmp}"
   nsupdate_conf_extension="${NSUPDATE_CONF_EXTENSION:-.conf}"
 
+  nsupdate_record_type="${NSUPDATE_RECORD_TYPE:-A}"
+  nsupdate_record_ttl="${NSUPDATE_RECORD_TTL:-300}"
+
   inwx_api="https://api.domrobot.com/xmlrpc/"
   inwx_api_xpath_ip='string(/methodResponse/params/param/value/struct/member[name="resData"]/value/struct/member[name="record"]/value/array/data/value/struct/member[name="content"]/value/string)'
   inwx_api_xpath_id='string(/methodResponse/params/param/value/struct/member[name="resData"]/value/struct/member[name="record"]/value/array/data/value/struct/member[name="id"]/value/int)'
@@ -106,9 +109,10 @@ get_domain_info () {
     tmp_file="${domain}_${record_type}_$(date +%s).xml"
 
     ## Check if WAN_IP_COMMAND is set and use it for retrieving the IP
-    if [ -z $WAN_IP_COMMAND ]; then
-      WAN_IP_COMMAND="${IPCOMMAND:-${WAN_IP_COMMAND}}" ## for backwards compatibility
+    if [ "$WAN_IP_COMMAND" != "" ]; then
+      #WAN_IP_COMMAND="${IPCOMMAND:-$WAN_IP_COMMAND}" ## for backwards compatibility
       wan_ip="${WAN_IP_COMMAND}"
+      chat 2 "Using WAN_IP_COMMAND for retrieving WAN IP."
     else
       ## Otherwise use IP retrieved from web site
       ## Get connection type by record type
@@ -276,10 +280,13 @@ if ls ${nsupdate_confd_dir}/*${nsupdate_conf_extension} > /dev/null 2>&1; then
     inwx_password="${INWX_PASSWORD:-$NSUPDATE_INWX_PASSWORD}"
     main_domain="${MAIN_DOMAIN}"
     domain="${DOMAIN}"
+
+
+
     RECORD_TYPE="${TYPE:-$RECORD_TYPE}" ## For backwards compatibility in config files
     RECORD_TTL="${TTL:-$RECORD_TTL}" ## For backwards compatibility in config files
-    record_type="${RECORD_TYPE:-$NSUPDATE_RECORD_TYPE}"
-    record_ttl="${RECORD_TTL:-$NSUPDATE_RECORD_TTL}"
+    record_type="${RECORD_TYPE:-$nsupdate_record_type}"
+    record_ttl="${RECORD_TTL:-$nsupdate_record_ttl}"
 
     ## Get domain info
     get_domain_info
@@ -306,6 +313,7 @@ if ls ${nsupdate_confd_dir}/*${nsupdate_conf_extension} > /dev/null 2>&1; then
     unset DOMAIN
     unset RECORD_TYPE
     unset RECORD_TTL
+    unset WAN_IP_COMMAND
     unset tmp_file
     unset inwx_domain_id
     unset inwx_domain_ip
