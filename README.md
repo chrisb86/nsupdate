@@ -62,6 +62,16 @@ With `crontab -e` you can add the following line for running the script every 5 
 
 ## Changelog
 
+**Beta**
+
+- Completly rewritten. nsupdate is now a POSIX compliant /bin/sh script 👍🏻
+- If using the xmmlint method, now also the IP for a record is retrieved this way
+- WAN IP now is only checked once per session instead of every time a new config is processed.
+- The script now automagically determines the best way to get the needed data (xmllint, nslookup, drill) and has some nice output options.
+- The code is now structured in functions which makes it more maintainable and modular.
+- Backwards compatibility should be given.
+- Avoid using awk and get rid of dependency
+
 **2020-07-03**
 
  - Rearranged config.sample
