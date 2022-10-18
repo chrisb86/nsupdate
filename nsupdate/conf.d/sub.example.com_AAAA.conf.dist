@@ -1,0 +1,30 @@
+## Example DNS record config file
+
+# nsupdate.sh is processing all .conf files in a loop.
+# If you want to update an IPv4 and an IPv6 record you need two config files.
+
+# The domain that you want to update AND its main/zone domain
+# The MAIN_DOMAIN is needed for the API-Request to get the record ID
+MAIN_DOMAIN="example.com"
+DOMAIN="sub.example.com"
+
+# The following options must only be set if they differ from the global config in nsupdate.conf
+
+# Login credentials for the INWX API
+# These can be left undefined if you specified them globally in the  nsupdate.conf
+#INWX_USER="YOUR_INWX_USERNAME"
+#INWX_PASSWORD="YOUR_INWX_PASSWORD"
+
+# Set the record type to either A, AAAA
+# If undefined, A is used globally
+RECORD_TYPE="AAAA"
+
+# TTL: Time to Live
+# default TTL setting by INWX is 3600 (1 hour)
+# minimum TTL allowed by INWX is 300 (5 minutes) for regular nameserver record updates
+# If unspecified, nsupdate uses a TTL of 300
+#RECORD_TTL="300"
+
+# Use a shell command to retrieve the WAN IP (eg. by SSHing to the router and get the IP from the WAN interface)
+# Otherwise the IP retrieved by website will be used
+#WAN_IP_COMMAND=$(ssh user@10.0.3.1 ifconfig pppoe1 | grep 'inet ' | cut -d' ' -f2)

@@ -1,66 +1,77 @@
 # Nameserver update for INWX (nsupdate)
 
 This shell script implements [dynamic DNS](https://en.wikipedia.org/wiki/Dynamic_DNS) using the [DomRobot XML-RPC API](https://www.inwx.de/de/help/apidoc/f/ch02s13.html#nameserver.updateRecord) by [INWX](https://www.inwx.de/).  
-This script can update nameserver entries with your current WAN IPv4 and IPv6 addresses.  
-It uses the `nameserver.updateRecord` method of the API.  
+This script can update nameserver entries with your current WAN IPv4 and IPv6 addresses.
 
-advantage: You don't need payed dynDNS-accounts for multiple domains.  
-disadvantage: The minimum TTL is 300 (5 minutes). The dynDNS-Service allowes 60 (1 minute).
+This way you can update your DNS records directly utilizing the INWX API and don't need the payed DynDNS option from INWX which uses DDNS over HTTP/S.
 
-There exists the `dyndns.updateRecord` method in the DomRobot API. Therefore you need a DynDNS-account by INWX. If you need this option, feel free to change the script to your needs.  
+The minimum TTL when using the API is 300 seconds. The paid DynDNS option can go as low as 60 seconds.
 
 ## Requirements
 
-In order to run the script you need to have installed the following command line tools:
+_nsupdate_ is fully POSIX compliant and should work in every shell.
 
-- _curl_
-- _awk_
-- _nslookup_ or _drill_
+Nevertheless it has some dependencies to use it:
+- _xmllint_ (Look for _libxml2-utils_ (Debian, Ubuntu) or _libxml2_ (FreeBSD, CentOS)). It's used for Getting the ID and the current IP from the INWX API. This is the recommended way.
 
-recommendation
+- If you don't have installed _xmllint_, you need either _nslookup_ or _drill_ to query the nameserver for the current IP. In this case you must define the specific INWX IDs in the config files for your INWX records.
 
-- _xmllint_  
-Look for _libxml2-utils_ (Debian, Ubuntu) or  
-_libxml2_ (FreeBSD, CentOS),  
-_xmlstarlet_ is also available on many systems and it gets _xmllint_.  
-If _xmllint_ is not on your system you have to set the domain record id in your config files.
+- A hard requirement is _curl_ as it's used to make the API calls.
 
-Note: 2-Factor-Authentification method (2FA) is not implemented.
+Note: 2-Factor-Authentification method (2FA) is not supported when using the INWX API.
 
 ## Installation
 
 Simply clone this project or download the `master.zip` and extract it, e.g., using `wget` and `7z x master.zip`.
 
-Place your config files in the `nsupdate.d` folder. A `dist.config.sample` file with all possible options is provided. At least one config file needs to exist, ending with `.config`.  
-All .config files (one for each dns-record) will be processed by looping them.  
+Move the included _nsupdate directory_, which holds the configuration files, to _/usr/local/etc/_ (see the config section if you want to use another path) and nsupdate.sh anywhere in your $PATH (e.g. /_usr/local/bin/_ or _~/bin/_).
 
-For home.example.com you may create:  
-A-Record Update configuration e.g.  
-`myV4.config`  
-```
-INWX_USER="USERNAME"
-INWX_PASS="PASSWORD"
-MAIN_DOMAIN="example.de"
-DOMAIN="home.example.de"
-TYPE="A"
-IP_CHECK_SITE="https://api.ipify.org"
-```
-AAAA-Record Update configuration e.g.  
-`myV6.config`  
-```
-INWX_USER="USERNAME"
-INWX_PASS="PASSWORD"
-MAIN_DOMAIN="example.de"
-DOMAIN="home.example.de"
-TYPE="AAAA"
-IP_CHECK_SITE="https://api6.ipify.org"
-```
+### Log directory
+The default log directory is _/var/log/nsupdate_. You have to create this directory and ensure write access for the user that runs _nsupdate_ (e.g. `sudo mkdir -p /var/log/nsupdate && sudo chown $USER /var/log/nsupdate`). When you want to use another path, see the config section.
+
+## Configuration
+
+### nsupdate.conf
+
+_nsupdate.conf_ is the main configuration file for _nsupdate_. Here you can set global defaults which can be used for all DNS records (e.g. INWX credentials, TTL, record type). These can be overwritten in the configuration files for your DNS records. There are also options to set the paths that are used by _nsupdate_.
+
+See _/usr/local/etc/nsupdate/nsupdate.conf.dist_ for all available options and their defaults.
+
+All options except the INWX credentials have sensible defaults and can be left untouched if they suit your needs.
+
+### Configuring DNS records
+
+The configuration files for your DNS belong to _/usr/local/etc/nsupdate/conf.d/_.
+
+If you configured your INWX credentials in _nsupdate.conf_ and the other defaults are fine for your use case, all you have to do is to set **$MAIN_DOMAIN** and **$DOMAIN**.
+
+See _/usr/local/etc/nsupdate/conf.d/sub.example.com_AAAA.conf.dist_ for an example with all available options.
+
+### Backwards compatibility
+[TODO] Backwards compatibility
+
 
 ## Run nsupdate by cron
-With `crontab -e` you can add the following line for running the script every 5 minutes:  
-`*/5 * * * * bash /home/$USER/nsupdate/nsupdate.sh`  
+
+The best way to use _nsupdate_ is by setting up a cron job (e.g. by running `crontab -e`).
+
+To run the script every 5 minutes and suppress the output you can write something like `*/5 * * * * /usr/local/bin/nsupdate.sh > /dev/null 2>&1`.
 
 ## Changelog
+
+**2022-10-18**
+
+- Completly rewritten. nsupdate is now a POSIX compliant /bin/sh script 👍🏻
+- Backwards compatibility should be given (please test and report bugs!).
+- If using the xmmlint method, now also the IP for a record is retrieved this way
+- WAN IP now is only checked once per session instead of every time a new config is processed.
+- The script now automagically determines the best way to get the needed data (xmllint, nslookup, drill) and has some nice output options.
+- The code is now structured in functions which makes it more maintainable and modular.
+- Avoid using awk and get rid of dependency
+
+**2021-12-11**
+
+- Added the possibility to retrieve the WAN IP by a shell command (e.g. SSHing into your router and get the IP of the WAN interface)
 
 **2020-07-03**
 

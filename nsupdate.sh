@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
 # Update a nameserver entry at inwx with the current WAN IP (DynDNS)
 
@@ -24,228 +24,301 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# check required tools
-command -v curl &> /dev/null || { echo >&2 "I require curl but it's not installed. Note: all needed items are listed in the README.md file."; exit 1; }
-command -v awk &> /dev/null || { echo >&2 "I require awk but it's not installed. Note: all needed items are listed in the README.md file."; exit 1; }
-command -v drill &> /dev/null || command -v nslookup &> /dev/null || { echo >&2 "I need drill or nslookup installed. Note: all needed items are listed in the README.md file."; exit 1; }
-command -v xmllint &> /dev/null || { echo >&2 "I recommend xmllint but it's not installed. Note: all needed items are listed in the README.md file."; NO_XMLLINT="true";}
+# Print and log messages when verbose mode is on
+# Usage: chat [0|1|2|3] MESSAGE
+## 0 = regular output
+## 1 = error messages
+## 2 = verbose messages
+## 3 = debug messages
 
-LOG=$0.log
-SILENT=NO
+chat () {
+  messagetype=$1
+  message=$2
+  log=$nsupdate_log_dir/$nsupdate_log_file
+  log_date=$(date "+$log_date_format")
+
+  if [ $messagetype = 0 ]; then
+    echo "[$log_date] [INFO] $message" | tee -a $log ;
+  fi
+  #
+  if [ $messagetype = 1 ]; then
+    echo "[$log_date] [ERROR] $message" | tee -a $log ; exit 1;
+  fi
+
+  if [ $messagetype = 2 ] && [ "$VERBOSE" = true ]; then
+    echo "[$log_date] [INFO] $message" | tee -a $log
+  fi
+
+  if [ $messagetype = 3 ] && [ "$DEBUG" = true ]; then
+    echo "[$log_date] [DEBUG] $message" | tee -a $log
+  fi
+}
+
+# Load config file, set default variables and get wan IP
+# Usage: init
+init () {
+
+  nsupdate_conf_file="nsupdate.conf"
+  basedir="${BASEDIR:-/usr/local/etc}"
+  nsupdate_conf_dir="${NSUPDATE_CONF_DIR:-$basedir/nsupdate}"
+
+  ## Try to load nsupdate.conf
+  [ -f "./$nsupdate_conf_file" ] && . ./$nsupdate_conf_file
+  [ -f "$nsupdate_conf_dir/$nsupdate_conf_file" ] && . $nsupdate_conf_dir/$nsupdate_conf_file
+
+  VERBOSE="${VERBOSE:-false}"
+  DEBUG="${DEBUG:-false}"
+
+  if [ "$DEBUG" = true ]; then
+    set -x
+  fi
+
+  nsupdate_confd_dir="${NSUPDATE_CONFD_DIR:-$nsupdate_conf_dir/conf.d}"
+  log_date_format="${LOG_DATE_FORMAT:-%Y-%m-%d %H:%M:%S}"
+  nsupdate_log_dir="${NSUPDATE_LOG_DIR:-/var/log/nsupdate}"
+  nsupdate_log_file="${NSUPDATE_LOG_FILE:-nsupdate.log}"
+  tmp_dir="${NSUPDATE_TMP_DIR:-/tmp}"
+  nsupdate_conf_extension="${NSUPDATE_CONF_EXTENSION:-.conf}"
+
+  nsupdate_record_type="${NSUPDATE_RECORD_TYPE:-A}"
+  nsupdate_record_ttl="${NSUPDATE_RECORD_TTL:-300}"
+
+  inwx_api="https://api.domrobot.com/xmlrpc/"
+  inwx_api_xpath_ip='string(/methodResponse/params/param/value/struct/member[name="resData"]/value/struct/member[name="record"]/value/array/data/value/struct/member[name="content"]/value/string)'
+  inwx_api_xpath_id='string(/methodResponse/params/param/value/struct/member[name="resData"]/value/struct/member[name="record"]/value/array/data/value/struct/member[name="id"]/value/int)'
+  inwx_nameserver="ns.inwx.de"
+  ip_check_site="${NSUPDATE_IP_CHECK_SITE:-https://api64.ipify.org}"
+
+  ## Get WAN IP 4
+  wan_ip4="$(curl -s -4 ${ip_check_site})"
+  chat 2 "WAN IP 4: ${wan_ip4}"
+
+  ## Get WAN IP 6
+  wan_ip6="$(curl -s -6 ${ip_check_site})"
+  chat 2 "WAN IP 6: ${wan_ip6}"
+}
+
+# Get the data for a given domain
+# Usage: get_inwx_domain_id
+get_domain_info () {
+
+  ## Check if xmllint is installed and use it.
+  if command -v xmllint > /dev/null 2>&1; then
+
+    ## File name for temporary file to store the XML from API
+    tmp_file="${main_domain}_${record_type}_$(date +%s).xml" # ${main_domain} in case of wildcards in ${domain}
+
+    ## Check if WAN_IP_COMMAND is set and use it for retrieving the IP
+    if [ "$WAN_IP_COMMAND" != "" ]; then
+      #WAN_IP_COMMAND="${IPCOMMAND:-$WAN_IP_COMMAND}" ## for backwards compatibility
+      wan_ip="${WAN_IP_COMMAND}"
+      chat 2 "Using WAN_IP_COMMAND for retrieving WAN IP."
+    else
+      ## Otherwise use IP retrieved from web site
+      ## Get connection type by record type
+      if [ "${record_type}" = "AAAA" ]; then
+        wan_ip="${wan_ip6}"
+      else
+        wan_ip="${wan_ip4}"
+      fi
+    fi
+
+    chat 3 "Found xmllint. Using curl for retrieving data from INWX API."
+
+    inwx_api_xml_info="<?xml version=\"1.0\"?>
+    <methodCall>
+    <methodName>nameserver.info</methodName>
+    <params>
+        <param>
+          <value>
+              <struct>
+                <member>
+                    <name>user</name>
+                    <value>
+                      <string>${inwx_user}</string>
+                    </value>
+                </member>
+                <member>
+                    <name>lang</name>
+                    <value>
+                      <string>en</string>
+                    </value>
+                </member>
+                <member>
+                    <name>pass</name>
+                    <value>
+                      <string>${inwx_password}</string>
+                    </value>
+                </member>
+                <member>
+                    <name>domain</name>
+                    <value>
+                      <string>${main_domain}</string>
+                    </value>
+                </member>
+                <member>
+                    <name>name</name>
+                    <value>
+                      <string>${domain}</string>
+                    </value>
+                </member>
+                <member>
+                    <name>type</name>
+                    <value>
+                      <string>${record_type}</string>
+                    </value>
+                </member>
+              </struct>
+          </value>
+        </param>
+    </params>
+    </methodCall>"
+
+    ## Get domain info from INWX API and save it to a temporary file
+    curl --silent --show-error --fail --output ${tmp_dir}/${tmp_file} -X POST ${inwx_api} -H "Content-Type: application/xml" -d "${inwx_api_xml_info}"
+
+    ## Extract ID and IP from INWX data
+    inwx_domain_ip="$(xmllint --xpath ${inwx_api_xpath_ip} ${tmp_dir}/${tmp_file})"
+    inwx_domain_id="$(xmllint --xpath ${inwx_api_xpath_id} ${tmp_dir}/${tmp_file})"
+
+    ## Remove domain info tmp file
+    rm ${tmp_dir}/${tmp_file}
+  else  
+    ## Check if nslookup is installed and use it to get the IP
+    if command -v nslookup > /dev/null 2>&1; then
+      chat 3 "Found nslookup. Using it for IP from INWX nameserver."
+      inwx_domain_ip=$(nslookup -sil -type=${record_type} ${domain} - ${inwx_nameserver} | tail -2 | head -1 | cut -d' ' -f2)
+    ## Check if drill is installed and use it to get the IP
+    else command -v drill > /dev/null 2>&1;
+      chat 3 "Found drill. Using it for IP from INWX nameserver."
+      inwx_domain_ip=$(drill ${domain} @${inwx_nameserver} ${record_type} | head -7 | tail -1 | cut -f2 -d$'\t' -f5)
+    fi
+
+    ## Set domain ID from config file
+    chat 3 "Trying to get domain ID from config file."
+    inwx_domain_id="${INWX_DOMAIN_ID}"
+  fi
+
+  if [ -z "$inwx_domain_ip" ]; then
+    chat 1 "Couldn't get current IP address for ${domain} [${record_type}]. please check the installation instructions."
+  fi
+
+  if [ -z "$inwx_domain_id" ]; then
+    chat 1 "Couldn't find domain ID for ${domain} [${record_type}]. please check the installation instructions."
+  fi
+}
+
+# Update a dns record
+# Usage: update_record
+update_record () {
+  chat 3 "Using curl to update the DNS record with INWX API."
+  inwx_api_xml_update_record="<?xml version=\"1.0\"?>
+        <methodCall>
+          <methodName>nameserver.updateRecord</methodName>
+          <params>
+              <param>
+                <value>
+                    <struct>
+                      <member>
+                          <name>user</name>
+                          <value>
+                            <string>${inwx_user}</string>
+                          </value>
+                      </member>
+                      <member>
+                          <name>lang</name>
+                          <value>
+                            <string>en</string>
+                          </value>
+                      </member>
+                      <member>
+                          <name>pass</name>
+                          <value>
+                            <string>${inwx_password}</string>
+                          </value>
+                      </member>
+                      <member>
+                          <name>id</name>
+                          <value>
+                            <int>${inwx_domain_id}</int>
+                          </value>
+                      </member>
+                      <member>
+                          <name>content</name>
+                          <value>
+                            <string>${wan_ip}</string>
+                          </value>
+                      </member>
+                      <member>
+                          <name>ttl</name>
+                          <value>
+                            <int>${record_ttl}</int>
+                            </value>
+                      </member>
+                    </struct>
+                </value>
+              </param>
+          </params>
+        </methodCall>"
+  
+  curl --silent --output /dev/null --show-error --fail -X POST "${inwx_api}" -H "Content-Type: application/xml" -d "${inwx_api_xml_update_record}"
+}
+
+## Initalize nsupdate
+init
 
 # Check if there are any usable config files
-if ls $(dirname $0)/nsupdate.d/*.config &> /dev/null; then
-   # Loop through configs
-   for f in $(dirname $0)/nsupdate.d/*.config
-   do
-      # Config files could be much cleaner by containing only relevant settings.
-      # If your User and Password is always the same just set it here once and delete it in the config files.
-      #INWX_USER="Username"
-      #INWX_PASS="Password"
-      # Resets previous set variables to catch wrong or not configured settings and set defaults.
-      MAIN_DOMAIN=
-      DOMAIN=
-      INWX_DOMAIN_ID="unset"
-      TTL=300
-      TYPE=A
-      CONNECTION_TYPE=4
-      # For backward compatability the following options remain in this script
-      IPV6="NO"
-      MX="NO"
+if ls ${nsupdate_confd_dir}/*${nsupdate_conf_extension} > /dev/null 2>&1; then
+  # Loop through config files
+  for f in ${nsupdate_confd_dir}/*${nsupdate_conf_extension}
+  do
+    . ${f}
+    chat 2 "Loading config file ${f}"
 
-      source $f
+    ## Get variables from config file
+    inwx_user="${INWX_USER:-$NSUPDATE_INWX_USER}"
+    inwx_password="${INWX_PASSWORD:-$NSUPDATE_INWX_PASSWORD}"
+    main_domain="${MAIN_DOMAIN}"
+    domain="${DOMAIN}"
 
-      if [[ "$SILENT" == "NO" ]]; then
-         echo "Starting nameserver update with config file $f ($LOG)"
-      fi
 
-      if [[ "$TYPE" == "A" ]]; then
-          CONNECTION_TYPE=4
-      fi
 
-      ## Set record type to MX
-      if [[ "$MX" == "YES" ]]; then
-         TYPE=MX
-      fi
+    RECORD_TYPE="${TYPE:-$RECORD_TYPE}" ## For backwards compatibility in config files
+    RECORD_TTL="${TTL:-$RECORD_TTL}" ## For backwards compatibility in config files
+    record_type="${RECORD_TYPE:-$nsupdate_record_type}"
+    record_ttl="${RECORD_TTL:-$nsupdate_record_ttl}"
 
-      ## Set record type to IPv6
-      if [[ "$IPV6" == "YES" ]]; then
-         TYPE=AAAA
-      fi
+    ## Get domain info
+    get_domain_info
 
-      if [[ "$TYPE" == "AAAA" ]]; then
-         CONNECTION_TYPE=6
-      fi
+    ## Verbose output
+    chat 2 "DOMAIN: ${domain}"
+    chat 2 "RECORD TYPE: ${record_type}"
+    chat 2 "RECORD TTL: ${record_ttl}"
+    chat 2 "INWX DOMAIN ID: ${inwx_domain_id}"
+    chat 2 "INWX IP: ${inwx_domain_ip}"
 
-      if [[ "$USE_DRILL" == "YES" ]]; then
-         if [[ "$TYPE" == "MX" ]]; then
-            echo looking up MX records with drill currently not supported!
-            exit 1
-         else
-            NSLOOKUP=$(drill $DOMAIN @ns.inwx.de $TYPE | head -7 | tail -1 | awk '{print $5}')
-         fi
-      else
-         if [[ "$TYPE" == "MX" ]]; then
-            PART_NSLOOKUP=$(nslookup -sil -type=$TYPE $DOMAIN - ns.inwx.de | tail -2 | head -1 | cut -d' ' -f5)
-            NSLOOKUP=${PART_NSLOOKUP%"."}
-         else
-            NSLOOKUP=$(nslookup -sil -type=$TYPE $DOMAIN - ns.inwx.de | tail -2 | head -1 | cut -d' ' -f2)
-         fi
-      fi
+    ## Check if record needs an update and do it
+    if [ "${inwx_domain_ip}" != "${wan_ip}" ]; then
+      chat 0 "Updating DNS record for ${domain} [${record_type}]. Old IP: ${inwx_domain_ip}. New IP: ${wan_ip}."
+      update_record ${inwx_user} ${inwx_password} ${inwx_domain_id} ${wan_ip} ${record_ttl}
+    else
+      chat 0 "No update required for ${domain} [${record_type}]."
+    fi
 
-      # WAN_IP=`curl -s -$CONNECTION_TYPE ${IP_CHECK_SITE}| grep -Eo '\<[[:digit:]]{1,3}(\.[[:digit:]]{1,3}){3}\>'`
-      if [[ -z ${IPCOMMAND} ]]; then
-        WAN_IP=$(curl -s -$CONNECTION_TYPE ${IP_CHECK_SITE})
-      else
-        WAN_IP=$($IPCOMMAND)
-      fi
-
-      # This is relevant for getting the specific domain record id.
-      API_XML_INFO="<?xml version=\"1.0\"?>
-      <methodCall>
-      <methodName>nameserver.info</methodName>
-      <params>
-         <param>
-            <value>
-               <struct>
-                  <member>
-                     <name>user</name>
-                     <value>
-                        <string>$INWX_USER</string>
-                     </value>
-                  </member>
-                  <member>
-                     <name>lang</name>
-                     <value>
-                        <string>en</string>
-                     </value>
-                  </member>
-                  <member>
-                     <name>pass</name>
-                     <value>
-                        <string>$INWX_PASS</string>
-                     </value>
-                  </member>
-                  <member>
-                     <name>domain</name>
-                     <value>
-                        <string>$MAIN_DOMAIN</string>
-                     </value>
-                  </member>
-                  <member>
-                     <name>name</name>
-                     <value>
-                        <string>$DOMAIN</string>
-                     </value>
-                  </member>
-                  <member>
-                     <name>type</name>
-                     <value>
-                        <string>$TYPE</string>
-                     </value>
-                  </member>
-               </struct>
-            </value>
-         </param>
-      </params>
-      </methodCall>"
-
-      # The full xpath is
-      # XPATH='string(/methodResponse/params/param/value/struct/member[name="resData"]/value/struct/member[name="record"]/value/array/data/value/struct/member[name="id"]/value/int)'
-      # A short version of the xpath
-      XPATH='string(//member[name="id"]/value/int/text())'
-      if [[ "$NO_XMLLINT" != "true" ]]; then
-         if [[ "$NSLOOKUP" != "$WAN_IP" ]]; then
-            if [[ "$INWX_DOMAIN_ID" == "unset" ]]; then
-               INWX_DOMAIN_ID=$(curl -s   -X POST https://api.domrobot.com/xmlrpc/ \
-               -H "Content-Type: application/xml" \
-               -d "$API_XML_INFO" \
-               | xmllint --xpath $XPATH -)
-               if [[ "$SILENT" == "NO" ]]; then
-                  echo $(printf "%s - The %s-Type Record-ID of %s is: %s" "$(date)" "$TYPE" "$DOMAIN" "$INWX_DOMAIN_ID")>>$LOG
-               fi
-            fi
-         fi
-      fi
-
-      API_XML_UPDATE_RECORD="<?xml version=\"1.0\"?>
-      <methodCall>
-         <methodName>nameserver.updateRecord</methodName>
-         <params>
-            <param>
-               <value>
-                  <struct>
-                     <member>
-                        <name>user</name>
-                        <value>
-                           <string>$INWX_USER</string>
-                        </value>
-                     </member>
-                     <member>
-                        <name>lang</name>
-                        <value>
-                           <string>en</string>
-                        </value>
-                     </member>
-                     <member>
-                        <name>pass</name>
-                        <value>
-                           <string>$INWX_PASS</string>
-                        </value>
-                     </member>
-                     <member>
-                        <name>id</name>
-                        <value>
-                           <int>$INWX_DOMAIN_ID</int>
-                        </value>
-                     </member>
-                     <member>
-                        <name>content</name>
-                        <value>
-                           <string>$WAN_IP</string>
-                        </value>
-                     </member>
-                     <member>
-                        <name>ttl</name>
-                        <value>
-                           <int>$TTL</int>
-                           </value>
-                     </member>
-                  </struct>
-               </value>
-            </param>
-         </params>
-      </methodCall>"
-
-      if [[ "$NSLOOKUP" != "$WAN_IP" ]]; then
-         curl -s -X POST https://api.domrobot.com/xmlrpc/ \
-         -H "Content-Type: application/xml" \
-         -d "$API_XML_UPDATE_RECORD"
-
-         if [[ "$SILENT" == "NO" ]]; then
-            echo "$(date) - $DOMAIN updated. Old IP: "$NSLOOKUP "New IP: "$WAN_IP >> $LOG
-         fi
-      else
-         if [[ "$SILENT" == "NO" ]]; then
-            echo "$(date) - No update needed for $DOMAIN. Current IP: "$NSLOOKUP >> $LOG
-         fi
-      fi
-
-      unset TYPE
-      unset MAIN_DOMAIN
-      unset DOMAIN
-      unset IPV6
-      unset MX
-      unset WAN_IP
-      unset TTL
-      unset NSLOOKUP
-      unset INWX_PASS
-      unset INWX_USER
-      unset INWX_DOMAIN_ID
-      unset API_XML_UPDATE_RECORD
-      unset API_XML_INFO
-   done
+    ## Clean up variables for a fresh start
+    unset INWX_USER
+    unset INWX_PASSWORD
+    unset MAIN_DOMAIN
+    unset DOMAIN
+    unset RECORD_TYPE
+    unset RECORD_TTL
+    unset WAN_IP_COMMAND
+    unset tmp_file
+    unset inwx_domain_id
+    unset inwx_domain_ip
+    unset wan_ip
+  done
 else
-   echo "There does not seem to be any config file available in $(dirname $0)/nsupdate.d/."
-   exit 1
+  chat 1 "Couldn't find any usable config files. Check installation instructions."
 fi
