@@ -48,8 +48,7 @@ If you configured your INWX credentials in _nsupdate.conf_ and the other default
 See _/usr/local/etc/nsupdate/conf.d/sub.example.com_AAAA.conf.dist_ for an example with all available options.
 
 ### Backwards compatibility
-[TODO] Backwards compatibility
-
+If you used _nsupdate_ before, you should be able to use your existing configs. Some options have changed names but are recognized when processing the configuration files. This may change in the future.
 
 ## Run nsupdate by cron
 
