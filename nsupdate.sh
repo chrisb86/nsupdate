@@ -105,8 +105,8 @@ get_domain_info () {
   ## Check if xmllint is installed and use it.
   if command -v xmllint > /dev/null 2>&1; then
 
-    ## File name for tempory file to store the XML from API
-    tmp_file="${domain}_${record_type}_$(date +%s).xml"
+    ## File name for temporary file to store the XML from API
+    tmp_file="${main_domain}_${record_type}_$(date +%s).xml" # ${main_domain} in case of wildcards in ${domain}
 
     ## Check if WAN_IP_COMMAND is set and use it for retrieving the IP
     if [ "$WAN_IP_COMMAND" != "" ]; then
@@ -175,7 +175,7 @@ get_domain_info () {
     </methodCall>"
 
     ## Get domain info from INWX API and save it to a temporary file
-    curl -s -X POST ${inwx_api} -H "Content-Type: application/xml" -d "${inwx_api_xml_info}" -o ${tmp_dir}/${tmp_file}
+    curl --silent --show-error --fail --output ${tmp_dir}/${tmp_file} -X POST ${inwx_api} -H "Content-Type: application/xml" -d "${inwx_api_xml_info}"
 
     ## Extract ID and IP from INWX data
     inwx_domain_ip="$(xmllint --xpath ${inwx_api_xpath_ip} ${tmp_dir}/${tmp_file})"
@@ -200,11 +200,11 @@ get_domain_info () {
   fi
 
   if [ -z "$inwx_domain_ip" ]; then
-    chat 1 "Couldn't get current IP. please check the installation instructions."
+    chat 1 "Couldn't get current IP address for ${domain} [${record_type}]. please check the installation instructions."
   fi
 
   if [ -z "$inwx_domain_id" ]; then
-    chat 1 "Couldn't find domain ID. please check the installation instructions."
+    chat 1 "Couldn't find domain ID for ${domain} [${record_type}]. please check the installation instructions."
   fi
 }
 
@@ -261,7 +261,7 @@ update_record () {
           </params>
         </methodCall>"
   
-  curl -s -X POST "${inwx_api}" -H "Content-Type: application/xml" -d "${inwx_api_xml_update_record}"
+  curl --silent --output /dev/null --show-error --fail -X POST "${inwx_api}" -H "Content-Type: application/xml" -d "${inwx_api_xml_update_record}"
 }
 
 ## Initalize nsupdate
