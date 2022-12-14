@@ -1,0 +1,12 @@
+version: "3.3"
+services:
+  sonarr:
+    image: nsupdate:latest
+    container_name: nsupdate
+    environment:
+      - NSUPDATE_INWX_USER=YOUR_INWX_USERNAME
+      - NSUPDATE_INWX_PASSWORD=YOUR_INWX_PASSWORD
+    volumes:
+      - ./data:/config
+      - ./log:/log
+    restart: unless-stopped

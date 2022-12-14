@@ -58,6 +58,10 @@ To run the script every 5 minutes and suppress the output you can write somethin
 
 ## Changelog
 
+**2022-12-14**
+- Added Dockerfile
+- Added docker-compose.yml
+
 **2022-10-18**
 
 - Completly rewritten. nsupdate is now a POSIX compliant /bin/sh script 👍🏻
