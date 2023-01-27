@@ -1,7 +1,7 @@
 FROM alpine:latest
 
 ENV TZ "UTC"
-ENV SCHEDULE "* * * * *"
+ENV SCHEDULE="* * * * *"
 
 ## Configure runtime variables for nsupdate
 ENV NSUPDATE_CONFD_DIR="/config"
