@@ -15,7 +15,7 @@ RUN apk add --no-cache git curl libxml2-utils tzdata
 RUN ln -sf "/usr/share/zoneinfo/${TZ}" /etc/localtime && \
     echo "${TZ}" > /etc/timezone && date
 
-COPY ../nsupdate.sh /usr/local/bin/nsupdate.sh
+COPY nsupdate.sh /usr/local/bin/nsupdate.sh
 RUN chmod +x /usr/local/bin/nsupdate.sh
 
 COPY docker/entrypoint.sh /
