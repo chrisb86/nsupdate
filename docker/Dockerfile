@@ -21,9 +21,10 @@ ADD https://api.github.com/repos/chrisb86/nsupdate/git/refs/heads/main /.git-has
 COPY nsupdate.sh /usr/local/bin/nsupdate.sh
 RUN chmod +x /usr/local/bin/nsupdate.sh
 
-COPY docker/entrypoint.sh /
+COPY docker/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
+CMD ["cron","-f", "-l", "2"]
 
 VOLUME /config
 VOLUME /log
