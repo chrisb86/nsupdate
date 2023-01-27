@@ -1,9 +1,15 @@
-version: "3.3"
+version: '3'
+
 services:
-  sonarr:
-    image: nsupdate:latest
+  nsupdate:
+    image: nsupdate
     container_name: nsupdate
+    build:
+      context: https://github.com/chrisb86/nsupdate.git
+      dockerfile: docker/Dockerfile
     environment:
+      - SCHEDULE="*\2 * * * *"
+      - TZ=Europe/Berlin
       - NSUPDATE_INWX_USER=YOUR_INWX_USERNAME
       - NSUPDATE_INWX_PASSWORD=YOUR_INWX_PASSWORD
     volumes:
