@@ -108,21 +108,6 @@ get_domain_info () {
     ## File name for temporary file to store the XML from API
     tmp_file="${main_domain}_${record_type}_$(date +%s).xml" # ${main_domain} in case of wildcards in ${domain}
 
-    ## Check if WAN_IP_COMMAND is set and use it for retrieving the IP
-    if [ "$WAN_IP_COMMAND" != "" ]; then
-      #WAN_IP_COMMAND="${IPCOMMAND:-$WAN_IP_COMMAND}" ## for backwards compatibility
-      wan_ip="${WAN_IP_COMMAND}"
-      chat 2 "Using WAN_IP_COMMAND for retrieving WAN IP."
-    else
-      ## Otherwise use IP retrieved from web site
-      ## Get connection type by record type
-      if [ "${record_type}" = "AAAA" ]; then
-        wan_ip="${wan_ip6}"
-      else
-        wan_ip="${wan_ip4}"
-      fi
-    fi
-
     chat 3 "Found xmllint. Using curl for retrieving data from INWX API."
 
     inwx_api_xml_info="<?xml version=\"1.0\"?>
@@ -208,6 +193,26 @@ get_domain_info () {
   fi
 }
 
+# Get specific WAN IP for a domain
+# Usage: get_domain_wan_ip
+get_domain_wan_ip () {
+
+  ## Check if WAN_IP_COMMAND is set and use it for retrieving the IP
+  if [ "$WAN_IP_COMMAND" != "" ]; then
+    #WAN_IP_COMMAND="${IPCOMMAND:-$WAN_IP_COMMAND}" ## for backwards compatibility
+    wan_ip="${WAN_IP_COMMAND}"
+    chat 2 "Using WAN_IP_COMMAND for retrieving WAN IP."
+  else
+    ## Otherwise use IP retrieved from web site
+    ## Get connection type by record type
+    if [ "${record_type}" = "AAAA" ]; then
+      wan_ip="${wan_ip6}"
+    else
+      wan_ip="${wan_ip4}"
+    fi
+  fi
+}
+
 # Update a dns record
 # Usage: update_record
 update_record () {
@@ -290,6 +295,9 @@ if ls ${nsupdate_confd_dir}/*${nsupdate_conf_extension} > /dev/null 2>&1; then
 
     ## Get domain info
     get_domain_info
+
+    ## Get WAN IP
+    get_domain_wan_ip
 
     ## Verbose output
     chat 2 "DOMAIN: ${domain}"
