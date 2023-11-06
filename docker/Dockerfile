@@ -22,7 +22,7 @@ COPY nsupdate.sh /usr/local/bin/nsupdate.sh
 RUN chmod +x /usr/local/bin/nsupdate.sh
 
 ## Setup cron job
-RUN echo "${SCHEDULE} sh /usr/local/bin/nsupdate.shy" >> /etc/crontabs/root
+RUN echo "${SCHEDULE} sh /usr/local/bin/nsupdate.sh" >> /etc/crontabs/root
 
 ## Start crond
 CMD [ "crond", "-l", "2", "-f" ]
