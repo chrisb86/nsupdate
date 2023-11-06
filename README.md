@@ -58,6 +58,9 @@ To run the script every 5 minutes and suppress the output you can write somethin
 
 ## Changelog
 
+**2023-11-06**
+- Added jq to Docker image (for processing json)
+
 **2022-12-14**
 - Added Dockerfile
 - Added docker-compose.yml

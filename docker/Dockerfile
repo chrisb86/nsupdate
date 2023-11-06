@@ -9,7 +9,7 @@ ENV NSUPDATE_LOG_DIR="/log"
 
 ## Install requirements
 RUN apk update
-RUN apk add --no-cache git curl libxml2-utils tzdata
+RUN apk add --no-cache git curl libxml2-utils tzdata jq
 
 # Read timezone from server, so in docker-compose you can change TZ
 RUN ln -sf "/usr/share/zoneinfo/${TZ}" /etc/localtime && \
@@ -22,7 +22,7 @@ COPY nsupdate.sh /usr/local/bin/nsupdate.sh
 RUN chmod +x /usr/local/bin/nsupdate.sh
 
 ## Setup cron job
-RUN echo "${SCHEDULE} sh /usr/local/bin/nsupdate.sh" >> /etc/crontabs/root
+RUN echo "${SCHEDULE} sh /usr/local/bin/nsupdate.shy" >> /etc/crontabs/root
 
 ## Start crond
 CMD [ "crond", "-l", "2", "-f" ]
