@@ -58,6 +58,10 @@ To run the script every 5 minutes and suppress the output you can write somethin
 
 ## Changelog
 
+**2024-06-05**
+
+- Added Gitea workflow for building docker images
+
 **2023-11-06**
 - Added jq to Docker image (for processing json)
 
