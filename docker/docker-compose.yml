@@ -2,11 +2,8 @@ version: '3'
 
 services:
   nsupdate:
-    image: nsupdate
+    image: git.debilux.org/chris/nsupdate
     container_name: nsupdate
-    build:
-      context: https://github.com/chrisb86/nsupdate.git
-      dockerfile: docker/Dockerfile
     environment:
       - SCHEDULE="*\2 * * * *"
       - TZ=Europe/Berlin
