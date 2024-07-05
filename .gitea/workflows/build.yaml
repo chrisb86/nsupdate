@@ -1,7 +1,11 @@
 name: release-tag
-
 on:
-  push
+  schedule:
+    - cron: '@weekly'
+  push:
+    branches:
+    - 'main'
+    - 'master'
 
 jobs:
   release-image:
