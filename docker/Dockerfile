@@ -1,6 +1,6 @@
 FROM alpine:latest
 
-ENV TZ "UTC"
+ENV TZ="UTC"
 ENV SCHEDULE="* * * * *"
 
 ## Configure runtime variables for nsupdate
