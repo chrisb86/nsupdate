@@ -85,7 +85,7 @@ init () {
 
   inwx_api="https://api.domrobot.com/xmlrpc/"
   inwx_api_xpath_ip='string(/methodResponse/params/param/value/struct/member[name="resData"]/value/struct/member[name="record"]/value/array/data/value/struct/member[name="content"]/value/string)'
-  inwx_api_xpath_id='string(/methodResponse/params/param/value/struct/member[name="resData"]/value/struct/member[name="record"]/value/array/data/value/struct/member[name="id"]/value/int)'
+  inwx_api_xpath_id='string(/methodResponse/params/param/value/struct/member[name="resData"]/value/struct/member[name="record"]/value/array/data/value/struct/member[name="id"]/value/string)'
   inwx_nameserver="ns.inwx.de"
   ip_check_site="${NSUPDATE_IP_CHECK_SITE:-https://api64.ipify.org}"
 
