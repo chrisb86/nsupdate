@@ -4,9 +4,15 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 2025-11-28
+
+### Fixed
+
+- Set datatype of the domain ID to string when updating a record.
+
 ## 2025-11-26
 
-### Changed
+### Fixed
 
 - Changed xpath of domain ID because INWX changed data type from "int" to "string".
 

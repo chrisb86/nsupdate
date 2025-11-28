@@ -245,7 +245,7 @@ update_record () {
                       <member>
                           <name>id</name>
                           <value>
-                            <int>${inwx_domain_id}</int>
+                            <string>${inwx_domain_id}</string>
                           </value>
                       </member>
                       <member>
