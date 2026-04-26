@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 2026-04-26
+
+### Fixed
+- Setting cron schedule for docker image via environment variable works now
+- Setting time zone for docker image via environment variable works now
+
+### Added
+- Docker image now supports setting PUID and GUID
+
 ## 2025-11-28
 
 ### Fixed

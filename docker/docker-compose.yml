@@ -1,15 +1,17 @@
-version: '3'
-
 services:
   nsupdate:
-    image: git.debilux.org/chris/nsupdate
+    image: git.debilux.org/chris/nsupdate:latest
     container_name: nsupdate
-    environment:
-      - SCHEDULE="*\2 * * * *"
-      - TZ=Europe/Berlin
-      - NSUPDATE_INWX_USER=YOUR_INWX_USERNAME
-      - NSUPDATE_INWX_PASSWORD=YOUR_INWX_PASSWORD
-    volumes:
-      - ./data:/config
-      - ./log:/log
     restart: unless-stopped
+    environment:
+      - PUID=1000 # (default: 1000)
+      - PGID=1000 # (default: 1000)
+      - VERBOSE=false
+      - DEBUG=false
+      - SCHEDULE=*/2 * * * * (default: * * * * *)
+      - TZ=Europe/Berlin # (default: Etc/UTC)
+      - NSUPDATE_INWX_USER=${NSUPDATE_INWX_USER}
+      - NSUPDATE_INWX_PASSWORD=${NSUPDATE_INWX_PASSWORD}
+    volumes:
+      - ./config:/config
+      - ./log:/log
